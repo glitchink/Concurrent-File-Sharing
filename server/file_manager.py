@@ -4,6 +4,7 @@ fine-grained download permissions, and reader-writer file locks for concurrent s
 """
 
 import os
+import shutil
 import sqlite3
 import hashlib
 import threading
@@ -217,7 +218,7 @@ class FileManager:
                     (file_dict["id"], user_id),
                 )
                 perm_row = cursor.fetchone()
-                if perm_row:
+                if perm_row and str(perm_row["permission"]).strip().lower() == "read":
                     return STATUS_OK, f"Access granted (Permission: {perm_row['permission']}).", file_dict
 
                 return STATUS_FORBIDDEN, f"Permission denied for file '{clean_name}'.", None
@@ -234,6 +235,8 @@ class FileManager:
         """
         Receives and saves a file under an exclusive write lock.
         Atomic write using a temporary file ensures no corrupt files on partial transfer.
+        Enforces ownership validation before replacing physical file to prevent unauthorized overwrites.
+        Implements physical file rollback if database transaction fails.
         """
         try:
             clean_name = self._sanitize_filename(filename)
@@ -242,6 +245,9 @@ class FileManager:
 
         target_path = os.path.join(self.storage_dir, clean_name)
         temp_path = os.path.join(self.storage_dir, f".tmp_{clean_name}_{os.getpid()}_{threading.get_ident()}")
+        backup_path = os.path.join(self.storage_dir, f".bak_{clean_name}_{os.getpid()}_{threading.get_ident()}")
+        backup_needed_for_recovery = False
+        temp_needed_for_recovery = False
 
         # Acquire exclusive write lock for this file
         with self.lock_manager.write_lock(clean_name):
@@ -253,42 +259,86 @@ class FileManager:
 
                 checksum = hasher.hexdigest()
 
-                # Atomically replace target file
-                os.replace(temp_path, target_path)
-
-                # Update database metadata
+                # Verify ownership and update metadata under server state lock
                 with self._lock:
                     with self._get_connection() as conn:
                         cursor = conn.cursor()
                         cursor.execute(
-                            """
-                            INSERT INTO files (filename, file_size, owner_id, owner_username, is_public, checksum)
-                            VALUES (?, ?, ?, ?, ?, ?)
-                            ON CONFLICT(filename) DO UPDATE SET
-                                file_size = excluded.file_size,
-                                owner_id = excluded.owner_id,
-                                owner_username = excluded.owner_username,
-                                is_public = excluded.is_public,
-                                checksum = excluded.checksum,
-                                uploaded_at = CURRENT_TIMESTAMP
-                            """,
-                            (clean_name, file_size, owner_id, owner_username, 1 if is_public else 0, checksum),
+                            "SELECT id, owner_id, owner_username FROM files WHERE filename = ?",
+                            (clean_name,),
                         )
-                        conn.commit()
+                        existing_file = cursor.fetchone()
 
-                        cursor.execute("SELECT * FROM files WHERE filename = ?", (clean_name,))
-                        saved_row = cursor.fetchone()
-                        metadata = dict(saved_row) if saved_row else None
+                        # Reject overwrite if existing file is owned by a different user
+                        if existing_file and existing_file["owner_id"] != owner_id:
+                            return STATUS_FORBIDDEN, f"Permission denied: File '{clean_name}' is owned by another user.", None
+
+                        # Safe physical file replacement with rollback preparation
+                        file_existed = os.path.exists(target_path)
+                        if file_existed:
+                            # Preserve original physical file for rollback in case DB transaction fails
+                            shutil.copy2(target_path, backup_path)
+
+                        # Replace target file with uploaded content
+                        os.replace(temp_path, target_path)
+
+                        try:
+                            # Insert or update file record; never reassign owner_id or owner_username
+                            cursor.execute(
+                                """
+                                INSERT INTO files (filename, file_size, owner_id, owner_username, is_public, checksum)
+                                VALUES (?, ?, ?, ?, ?, ?)
+                                ON CONFLICT(filename) DO UPDATE SET
+                                    file_size = excluded.file_size,
+                                    is_public = excluded.is_public,
+                                    checksum = excluded.checksum,
+                                    uploaded_at = CURRENT_TIMESTAMP
+                                WHERE files.owner_id = excluded.owner_id
+                                """,
+                                (clean_name, file_size, owner_id, owner_username, 1 if is_public else 0, checksum),
+                            )
+                            conn.commit()
+
+                            cursor.execute("SELECT * FROM files WHERE filename = ?", (clean_name,))
+                            saved_row = cursor.fetchone()
+                            metadata = dict(saved_row) if saved_row else None
+
+                        except Exception:
+                            # Rollback database transaction
+                            try:
+                                conn.rollback()
+                            except Exception:
+                                pass
+
+                            # Rollback physical file to original state; handle rollback failure safely
+                            if file_existed and os.path.exists(backup_path):
+                                try:
+                                    os.replace(backup_path, target_path)
+                                except OSError:
+                                    # Rollback failed: preserve backup_path so the original file is not lost
+                                    backup_needed_for_recovery = True
+                            elif not file_existed and os.path.exists(target_path):
+                                try:
+                                    os.remove(target_path)
+                                except OSError:
+                                    temp_needed_for_recovery = True
+                            raise
 
                 return STATUS_CREATED, f"File '{clean_name}' saved successfully.", metadata
 
             except Exception as e:
-                if os.path.exists(temp_path):
+                return STATUS_INTERNAL_ERROR, f"Failed to save file: {str(e)}", None
+            finally:
+                if os.path.exists(temp_path) and not temp_needed_for_recovery:
                     try:
                         os.remove(temp_path)
                     except OSError:
                         pass
-                return STATUS_INTERNAL_ERROR, f"Failed to save file: {str(e)}", None
+                if os.path.exists(backup_path) and not backup_needed_for_recovery:
+                    try:
+                        os.remove(backup_path)
+                    except OSError:
+                        pass
 
     def read_file_stream(
         self,
@@ -299,19 +349,23 @@ class FileManager:
     ) -> tuple[int, str]:
         """
         Streams a file to a receiver under a shared read lock after verifying download permissions.
+        Consistent lock ordering: read_lock acquired before self._lock in check_download_permission.
         """
-        status_code, msg, file_dict = self.check_download_permission(filename, username, user_id)
-        if status_code != STATUS_OK or not file_dict:
-            return status_code, msg
+        try:
+            clean_name = self._sanitize_filename(filename)
+        except ValueError as e:
+            return STATUS_BAD_REQUEST, str(e)
 
-        clean_name = file_dict["filename"]
-        target_path = os.path.join(self.storage_dir, clean_name)
-
-        if not os.path.exists(target_path):
-            return STATUS_NOT_FOUND, f"File data for '{clean_name}' not found on disk."
-
-        # Acquire read lock (multiple readers allowed concurrently)
+        # Acquire read lock first to keep lock ordering consistent (file lock -> self._lock)
         with self.lock_manager.read_lock(clean_name):
+            status_code, msg, file_dict = self.check_download_permission(clean_name, username, user_id)
+            if status_code != STATUS_OK or not file_dict:
+                return status_code, msg
+
+            target_path = os.path.join(self.storage_dir, clean_name)
+            if not os.path.exists(target_path):
+                return STATUS_NOT_FOUND, f"File data for '{clean_name}' not found on disk."
+
             try:
                 with open(target_path, "rb") as f_in:
                     stream_sender(f_in, file_dict["file_size"])
@@ -380,22 +434,21 @@ class FileManager:
         except ValueError as e:
             return STATUS_BAD_REQUEST, str(e)
 
-        with self._lock:
-            with self._get_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT id, owner_id, owner_username FROM files WHERE filename = ?", (clean_name,))
-                row = cursor.fetchone()
+        with self.lock_manager.write_lock(clean_name):
+            with self._lock:
+                with self._get_connection() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT id, owner_id, owner_username FROM files WHERE filename = ?", (clean_name,))
+                    row = cursor.fetchone()
 
-                if not row:
-                    return STATUS_NOT_FOUND, f"File '{clean_name}' does not exist."
+                    if not row:
+                        return STATUS_NOT_FOUND, f"File '{clean_name}' does not exist."
 
-                if row["owner_id"] != user_id and row["owner_username"].lower() != username.lower():
-                    return STATUS_FORBIDDEN, "Only the owner can delete this file."
+                    if row["owner_id"] != user_id and row["owner_username"].lower() != username.lower():
+                        return STATUS_FORBIDDEN, "Only the owner can delete this file."
 
-                file_id = row["id"]
+                    file_id = row["id"]
 
-                # Acquire exclusive write lock before removing file
-                with self.lock_manager.write_lock(clean_name):
                     target_path = os.path.join(self.storage_dir, clean_name)
                     if os.path.exists(target_path):
                         try:
@@ -407,7 +460,7 @@ class FileManager:
                     cursor.execute("DELETE FROM files WHERE id = ?", (file_id,))
                     conn.commit()
 
-                return STATUS_OK, f"File '{clean_name}' deleted successfully."
+            return STATUS_OK, f"File '{clean_name}' deleted successfully."
 
     def set_permissions(
         self,

@@ -75,6 +75,32 @@ class TestServerClientE2E(unittest.TestCase):
         with open(downloaded_path, "rb") as f:
             self.assertEqual(f.read(), file_content)
 
+        # 4a. Bob attempts to overwrite Alice's file with malicious content -> rejected
+        bob_overwrite_dir = os.path.join(self.test_dir, "bob_local")
+        os.makedirs(bob_overwrite_dir, exist_ok=True)
+        bob_file_path = os.path.join(bob_overwrite_dir, "network_report.txt")
+        with open(bob_file_path, "wb") as f:
+            f.write(b"Malicious overwrite payload by Bob")
+        self.assertFalse(client2.upload_file(bob_file_path, is_public=True))
+
+        # Verify Alice's original file is still intact on server by downloading again
+        verify_path = os.path.join(self.downloads_dir, "verify_alice.txt")
+        self.assertTrue(client1.download_file("network_report.txt", save_as="verify_alice.txt"))
+        with open(verify_path, "rb") as f:
+            self.assertEqual(f.read(), file_content)
+
+        # 4b. Alice (owner) updates her own file -> should succeed
+        updated_content = file_content + b"\nUpdated Revision by Alice"
+        with open(sample_file_path, "wb") as f:
+            f.write(updated_content)
+        self.assertTrue(client1.upload_file(sample_file_path, is_public=True))
+
+        # Bob downloads updated file and receives the updated content
+        self.assertTrue(client2.download_file("network_report.txt", save_as="network_report_v2.txt"))
+        v2_path = os.path.join(self.client2_downloads, "network_report_v2.txt")
+        with open(v2_path, "rb") as f:
+            self.assertEqual(f.read(), updated_content)
+
         # 5. Alice uploads a private file
         private_file_path = os.path.join(self.test_dir, "keys.pem")
         with open(private_file_path, "wb") as f:
