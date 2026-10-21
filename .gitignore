@@ -1,9 +1,0 @@
-controller-env/
-__pycache__/
-*.pyc
-*.save
-*.db
-*.db-wal
-*.db-shm
-server/storage/
-client/downloads/
