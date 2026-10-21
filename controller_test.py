@@ -171,7 +171,6 @@ class TestController(app_manager.OSKenApp):
             packets = flow.packet_count
             bytes_count = flow.byte_count
 
-            # First time seeing this flow
             if flow_id not in self.flow_start_time:
 
                 self.flow_start_time[flow_id] = current_time
@@ -182,32 +181,30 @@ class TestController(app_manager.OSKenApp):
                     current_time
                 )
 
-                transfer_time = 0
-                bandwidth = 0
+                flow_age = 0
+                interval_bandwidth = 0
 
             else:
 
                 start_time = self.flow_start_time[flow_id]
-
-                transfer_time = current_time - start_time
+                flow_age = current_time - start_time
 
                 old_packets, old_bytes, old_time = (
                     self.previous_stats[flow_id]
                 )
 
                 time_difference = current_time - old_time
-
                 byte_difference = bytes_count - old_bytes
 
-                if time_difference > 0:
+                if time_difference > 0 and byte_difference >= 0:
 
-                    bandwidth = (
+                    interval_bandwidth = (
                         byte_difference * 8
                     ) / time_difference
 
                 else:
 
-                    bandwidth = 0
+                    interval_bandwidth = 0
 
                 self.previous_stats[flow_id] = (
                     packets,
@@ -215,19 +212,35 @@ class TestController(app_manager.OSKenApp):
                     current_time
                 )
 
+            if flow_age > 0:
+
+                average_bandwidth = (
+                    bytes_count * 8
+                ) / flow_age
+
+            else:
+
+                average_bandwidth = 0
+
             print("Flow:", flow.match)
             print("Packets:", packets)
             print("Bytes:", bytes_count)
 
             print(
-                "Transfer Time:",
-                round(transfer_time, 3),
+                "Flow Age:",
+                round(flow_age, 3),
                 "seconds"
             )
 
             print(
-                "Bandwidth:",
-                round(bandwidth, 2),
+                "Interval Bandwidth:",
+                round(interval_bandwidth, 2),
+                "bits/sec"
+            )
+
+            print(
+                "Average Flow Bandwidth:",
+                round(average_bandwidth, 2),
                 "bits/sec"
             )
 

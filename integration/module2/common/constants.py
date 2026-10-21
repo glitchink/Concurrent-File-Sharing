@@ -1,0 +1,37 @@
+"""
+Constants and configuration definitions for the Concurrent File Sharing system.
+Used across server, client, and protocol layers.
+"""
+
+# Networking Defaults
+DEFAULT_HOST = "0.0.0.0"
+SERVER_IP = "10.0.0.10"
+DEFAULT_PORT = 5000
+BUFFER_SIZE = 4096
+HEADER_PREFIX_LEN = 8  # 8 bytes for length prefix (big-endian 64-bit uint)
+
+# Authentication & Session Settings
+SESSION_DURATION_SECONDS = 86400  # 24 hours
+MIN_PASSWORD_LENGTH = 4
+HASH_ITERATIONS = 100000
+
+# Protocol Commands
+CMD_REGISTER = "REGISTER"
+CMD_LOGIN = "LOGIN"
+CMD_LOGOUT = "LOGOUT"
+CMD_LIST = "LIST"
+CMD_UPLOAD = "UPLOAD"
+CMD_DOWNLOAD = "DOWNLOAD"
+CMD_DELETE = "DELETE"
+CMD_METADATA = "METADATA"
+CMD_SET_PERMISSIONS = "SET_PERMISSIONS"
+
+# Protocol Status Codes
+STATUS_OK = 200
+STATUS_CREATED = 201
+STATUS_BAD_REQUEST = 400
+STATUS_UNAUTHORIZED = 401
+STATUS_FORBIDDEN = 403
+STATUS_NOT_FOUND = 404
+STATUS_CONFLICT = 409
+STATUS_INTERNAL_ERROR = 500
