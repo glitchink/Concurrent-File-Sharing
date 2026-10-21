@@ -147,6 +147,7 @@ Network-level testing also verified SDN traffic filtering, flow monitoring, and 
 ```text
 sdn-file-sharing/
 ├── controller_test.py
+├── controller_dynamic.py
 ├── file_network.py
 ├── README.md
 └── integration/
@@ -215,11 +216,11 @@ Recorded average upload throughput from one run:
 
 | Configuration | Trials reported | Average throughput |
 |---|---:|---:|
-| Single client, 1 MiB | 3 | 216.43 MiB/s |
-| Single client, 5 MiB | 3 | 476.03 MiB/s |
-| Single client, 10 MiB | 3 | 193.49 MiB/s |
-| Concurrent uploads, 5 MiB | 6 individual uploads | 238.30 MiB/s |
-| Concurrent uploads, 10 MiB | 6 individual uploads | 338.84 MiB/s |
+| Single client, 1 MiB | 3 | 103.40 MiB/s |
+| Single client, 5 MiB | 3 | 284.66 MiB/s |
+| Single client, 10 MiB | 3 | 319.23 MiB/s |
+| Concurrent uploads, 5 MiB | 6 individual uploads | 71.89 MiB/s |
+| Concurrent uploads, 10 MiB | 6 individual uploads | 45.01 MiB/s |
 
 All 21 upload operations succeeded in that run, and downloaded files passed checksum verification.
 

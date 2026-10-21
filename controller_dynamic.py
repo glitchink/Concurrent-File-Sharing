@@ -163,27 +163,30 @@ class TestController(app_manager.OSKenApp):
         # ACCESS CONTROL
         # -------------------------------------------------
 
-        block_match = parser.OFPMatch(
-            eth_type=0x0800,
-            ipv4_src=self.blocked_client_ip,
-            ipv4_dst=self.server_ip
-        )
+        # Install access-control rules for every currently blocked client.
+        for client_ip in sorted(self.dynamic_blocked_ips):
 
-        block_mod = parser.OFPFlowMod(
-            datapath=datapath,
-            priority=100,
-            match=block_match
-        )
+            block_match = parser.OFPMatch(
+                eth_type=0x0800,
+                ipv4_src=client_ip,
+                ipv4_dst=self.server_ip
+            )
 
-        datapath.send_msg(block_mod)
+            block_mod = parser.OFPFlowMod(
+                datapath=datapath,
+                priority=100,
+                match=block_match
+            )
 
-        print(
-            "Access rule installed:",
-            self.blocked_client_ip,
-            "->",
-            self.server_ip,
-            "BLOCKED"
-        )
+            datapath.send_msg(block_mod)
+
+            print(
+                "Access rule installed:",
+                client_ip,
+                "->",
+                self.server_ip,
+                "BLOCKED"
+            )
 
         # -------------------------------------------------
         # DEFAULT RULE
