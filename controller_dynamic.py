@@ -2,6 +2,7 @@ from os_ken.base import app_manager
 from os_ken.controller import ofp_event
 from os_ken.controller.handler import CONFIG_DISPATCHER
 from os_ken.controller.handler import MAIN_DISPATCHER
+from os_ken.controller.handler import DEAD_DISPATCHER
 from os_ken.controller.handler import set_ev_cls
 from os_ken.ofproto import ofproto_v1_3
 from os_ken.lib.packet import packet
@@ -30,10 +31,15 @@ class TestController(app_manager.OSKenApp):
         self.datapaths = {}
         self.control_server_started = False
 
-        # Monitoring
+        # Monitoring state is keyed by (datapath ID, flow match).
         self.flow_start_time = {}
+        self.first_observed_bytes = {}
         self.previous_stats = {}
-        self.monitoring_started = False
+        self.monitor_threads = {}
+        self.monitor_datapaths = {}
+        self.stats_seen_by_dpid = {}
+        self.stats_missing_counts = {}
+        self.flow_missing_grace_period = 3
 
     # -------------------------------------------------
     # DYNAMIC ACCESS CONTROL
@@ -217,32 +223,57 @@ class TestController(app_manager.OSKenApp):
 
         datapath.send_msg(mod)
 
-        # -------------------------------------------------
-        # START MONITORING
-        # -------------------------------------------------
-
-        if not self.monitoring_started:
-
-            self.monitoring_started = True
-
+        # Start one polling worker per connected switch.
+        existing_thread = self.monitor_threads.get(datapath.id)
+        existing_datapath = self.monitor_datapaths.get(datapath.id)
+        if existing_thread is None or not existing_thread.is_alive() or existing_datapath is not datapath:
             thread = Thread(
                 target=self.monitor_flow,
-                args=(datapath,)
+                args=(datapath,),
+                name=f"flow-monitor-{datapath.id}",
+                daemon=True,
             )
-
-            thread.daemon = True
+            self.monitor_threads[datapath.id] = thread
+            self.monitor_datapaths[datapath.id] = datapath
             thread.start()
+
+    @set_ev_cls(
+        ofp_event.EventOFPStateChange,
+        [MAIN_DISPATCHER, DEAD_DISPATCHER],
+    )
+    def datapath_state_change_handler(self, ev):
+        datapath = ev.datapath
+        if ev.state == DEAD_DISPATCHER:
+            if self.datapaths.get(datapath.id) is datapath:
+                self.datapaths.pop(datapath.id, None)
+            self.monitor_threads.pop(datapath.id, None)
+            self.monitor_datapaths.pop(datapath.id, None)
+            self._clear_datapath_monitoring_state(datapath.id)
+            self.mac_to_port.pop(datapath.id, None)
+            print("Switch disconnected; monitoring state cleared:", datapath.id)
+
+    def _clear_datapath_monitoring_state(self, datapath_id):
+        flow_ids = [
+            flow_id for flow_id in self.flow_start_time
+            if flow_id[0] == datapath_id
+        ]
+        for flow_id in flow_ids:
+            self.flow_start_time.pop(flow_id, None)
+            self.first_observed_bytes.pop(flow_id, None)
+            self.previous_stats.pop(flow_id, None)
+            self.stats_missing_counts.pop(flow_id, None)
+        self.stats_seen_by_dpid.pop(datapath_id, None)
 
     # -------------------------------------------------
     # PERIODIC MONITORING
     # -------------------------------------------------
 
     def monitor_flow(self, datapath):
-
-        while True:
-
-            self.request_flow_stats(datapath)
-
+        while self.datapaths.get(datapath.id) is datapath:
+            try:
+                self.request_flow_stats(datapath)
+            except Exception as exc:
+                print(f"Unable to request flow stats from switch {datapath.id}: {exc}")
             time.sleep(5)
 
     # -------------------------------------------------
@@ -268,103 +299,111 @@ class TestController(app_manager.OSKenApp):
         MAIN_DISPATCHER
     )
     def flow_stats_reply_handler(self, ev):
-
         datapath = ev.msg.datapath
-
+        datapath_id = datapath.id
         current_time = time.time()
 
-        print("\n===== SDN FLOW MONITORING =====")
+        # OpenFlow statistics may arrive in multiple messages. Only expire
+        # unseen flows after the final part of a complete reply.
+        seen = self.stats_seen_by_dpid.setdefault(datapath_id, set())
+
+        print("\n===== SDN FLOW MONITORING (switch {}) =====".format(datapath_id))
 
         for flow in ev.msg.body:
-
-            # Ignore the default table-miss rule
             if flow.priority == 0:
                 continue
 
-            flow_id = (
-                datapath.id,
-                str(flow.match)
-            )
+            flow_id = (datapath_id, str(flow.match))
+            seen.add(flow_id)
 
             packets = flow.packet_count
             bytes_count = flow.byte_count
 
             if flow_id not in self.flow_start_time:
-
                 self.flow_start_time[flow_id] = current_time
-
+                self.first_observed_bytes[flow_id] = bytes_count
                 self.previous_stats[flow_id] = (
-                    packets,
-                    bytes_count,
-                    current_time
+                    packets, bytes_count, current_time
                 )
-
-                flow_age = 0
-                interval_bandwidth = 0
-
+                flow_age = 0.0
+                interval_bandwidth = 0.0
+                observed_average_bandwidth = 0.0
             else:
-
                 start_time = self.flow_start_time[flow_id]
-                flow_age = current_time - start_time
+                flow_age = max(0.0, current_time - start_time)
 
-                old_packets, old_bytes, old_time = (
-                    self.previous_stats[flow_id]
-                )
-
+                old_packets, old_bytes, old_time = self.previous_stats[flow_id]
                 time_difference = current_time - old_time
                 byte_difference = bytes_count - old_bytes
 
-                if time_difference > 0 and byte_difference >= 0:
-
-                    interval_bandwidth = (
-                        byte_difference * 8
-                    ) / time_difference
-
+                # Switch counters can reset when a flow is replaced or a
+                # datapath restarts. Reset the observation baseline then.
+                if byte_difference < 0 or packets < old_packets:
+                    self.flow_start_time[flow_id] = current_time
+                    self.first_observed_bytes[flow_id] = bytes_count
+                    flow_age = 0.0
+                    interval_bandwidth = 0.0
+                    observed_average_bandwidth = 0.0
                 else:
-
-                    interval_bandwidth = 0
+                    interval_bandwidth = (
+                        (byte_difference * 8.0) / time_difference
+                        if time_difference > 0 else 0.0
+                    )
+                    baseline_bytes = self.first_observed_bytes.get(
+                        flow_id, old_bytes
+                    )
+                    observed_bytes = max(0, bytes_count - baseline_bytes)
+                    observed_average_bandwidth = (
+                        (observed_bytes * 8.0) / flow_age
+                        if flow_age > 0 else 0.0
+                    )
 
                 self.previous_stats[flow_id] = (
-                    packets,
-                    bytes_count,
-                    current_time
+                    packets, bytes_count, current_time
                 )
-
-            if flow_age > 0:
-
-                average_bandwidth = (
-                    bytes_count * 8
-                ) / flow_age
-
-            else:
-
-                average_bandwidth = 0
 
             print("Flow:", flow.match)
             print("Packets:", packets)
             print("Bytes:", bytes_count)
-
+            print("Age since first observation:", round(flow_age, 3), "seconds")
+            print("Interval bandwidth:", round(interval_bandwidth, 2), "bits/sec")
             print(
-                "Flow Age:",
-                round(flow_age, 3),
-                "seconds"
+                "Average bandwidth since first observation:",
+                round(observed_average_bandwidth, 2),
+                "bits/sec",
             )
-
-            print(
-                "Interval Bandwidth:",
-                round(interval_bandwidth, 2),
-                "bits/sec"
-            )
-
-            print(
-                "Average Flow Bandwidth:",
-                round(average_bandwidth, 2),
-                "bits/sec"
-            )
-
             print("--------------------------------")
 
+        ofproto = datapath.ofproto
+        more_flag = getattr(ofproto, "OFPMPF_REPLY_MORE", 1)
+        more_replies = bool(getattr(ev.msg, "flags", 0) & more_flag)
+        if not more_replies:
+            self._expire_unseen_flows(datapath_id, seen)
+            self.stats_seen_by_dpid[datapath_id] = set()
+
         print("===============================\n")
+
+    def _expire_unseen_flows(self, datapath_id, seen_flow_ids):
+        """Forget flows missing from several complete stats collections."""
+        known_flow_ids = [
+            flow_id for flow_id in self.flow_start_time
+            if flow_id[0] == datapath_id
+        ]
+
+        for flow_id in known_flow_ids:
+            if flow_id in seen_flow_ids:
+                self.stats_missing_counts.pop(flow_id, None)
+                continue
+
+            misses = self.stats_missing_counts.get(flow_id, 0) + 1
+            self.stats_missing_counts[flow_id] = misses
+
+            if misses >= self.flow_missing_grace_period:
+                self.flow_start_time.pop(flow_id, None)
+                self.first_observed_bytes.pop(flow_id, None)
+                self.previous_stats.pop(flow_id, None)
+                self.stats_missing_counts.pop(flow_id, None)
+                print("Expired stale flow-monitoring state:", flow_id)
 
     # -------------------------------------------------
     # PACKET IN
