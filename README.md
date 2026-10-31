@@ -199,8 +199,6 @@ Throughput did not increase consistently with file size in those runs.
   port security or authenticated policy channels.
 * Only the IPv4 client -> server direction is dropped; ARP and client <-> client traffic stay open.
 * Passwords and file contents travel unencrypted (no TLS); this is a lab network.
-* `integration/module1` is a standalone implementation and is not part of the integrated Mininet demo,
-  which uses the Module 2 server and client.
 
 ## 8. Rubric coverage
 
