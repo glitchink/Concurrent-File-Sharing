@@ -1,0 +1,642 @@
+/home/riddhima/CN_Submission/Concurrent-File-Sharing-main/controller-env/lib/python3.14/site-packages/os_ken/lib/hub.py:160: EventletDeprecationWarning:
+Eventlet is deprecated. It is currently being maintained in bugfix mode, and
+we strongly recommend against using it for new projects.
+
+If you are already using Eventlet, we recommend migrating to a different
+framework.  For more detail see
+https://eventlet.readthedocs.io/en/latest/asyncio/migration.html
+
+  import eventlet
+1 RLock(s) were not greened, to fix this error make sure you run eventlet.monkey_patch() before importing any other modules.
+loading app /home/riddhima/CN_Submission/Concurrent-File-Sharing-main/controller_dynamic.py
+loading app os_ken.controller.ofp_handler
+instantiating app /home/riddhima/CN_Submission/Concurrent-File-Sharing-main/controller_dynamic.py of TestController
+instantiating app os_ken.controller.ofp_handler of OFPHandler
+Dynamic policy control listening on 127.0.0.1:9090
+Dynamic policy control listening on unix:/tmp/sdn_exp_dynamic_50runw_b/controller.sock
+Switch connected!
+Datapath ID: 1
+Access rule installed: 10.0.0.3 -> 10.0.0.10 BLOCKED
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 0 seconds
+Interval Bandwidth: 0 bits/sec
+Average Flow Bandwidth: 0 bits/sec
+--------------------------------
+===============================
+
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 5.469 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 1
+Bytes: 54
+Flow Age: 0 seconds
+Interval Bandwidth: 0 bits/sec
+Average Flow Bandwidth: 0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 0
+Bytes: 0
+Flow Age: 0 seconds
+Interval Bandwidth: 0 bits/sec
+Average Flow Bandwidth: 0 bits/sec
+--------------------------------
+===============================
+
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 10.471 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 1038
+Bytes: 17784260
+Flow Age: 5.002 seconds
+Interval Bandwidth: 28445201.08 bits/sec
+Average Flow Bandwidth: 28445287.45 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 1026
+Bytes: 18944268
+Flow Age: 5.002 seconds
+Interval Bandwidth: 30300678.74 bits/sec
+Average Flow Bandwidth: 30300678.74 bits/sec
+--------------------------------
+===============================
+
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 15.472 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 1940
+Bytes: 39875409
+Flow Age: 10.003 seconds
+Interval Bandwidth: 35337908.59 bits/sec
+Average Flow Bandwidth: 31891407.53 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 1925
+Bytes: 39975915
+Flow Age: 10.003 seconds
+Interval Bandwidth: 33643085.71 bits/sec
+Average Flow Bandwidth: 31971789.85 bits/sec
+--------------------------------
+===============================
+
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 20.482 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 2303
+Bytes: 50490363
+Flow Age: 15.013 seconds
+Interval Bandwidth: 16949607.75 bits/sec
+Average Flow Bandwidth: 26905018.3 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 2290
+Bytes: 50486256
+Flow Age: 15.013 seconds
+Interval Bandwidth: 16782565.17 bits/sec
+Average Flow Bandwidth: 26902829.79 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:02'})
+Packets: 4
+Bytes: 519
+Flow Age: 0 seconds
+Interval Bandwidth: 0 bits/sec
+Average Flow Bandwidth: 0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 2, 'eth_src': '00:00:00:00:00:02', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 5
+Bytes: 509
+Flow Age: 0 seconds
+Interval Bandwidth: 0 bits/sec
+Average Flow Bandwidth: 0 bits/sec
+--------------------------------
+===============================
+
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 25.487 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 2903
+Bytes: 58261781
+Flow Age: 20.018 seconds
+Interval Bandwidth: 12422034.25 bits/sec
+Average Flow Bandwidth: 23283937.13 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 2890
+Bytes: 61012222
+Flow Age: 20.018 seconds
+Interval Bandwidth: 16824974.56 bits/sec
+Average Flow Bandwidth: 24383132.76 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:02'})
+Packets: 601
+Bytes: 5942915
+Flow Age: 5.005 seconds
+Interval Bandwidth: 9498478.48 bits/sec
+Average Flow Bandwidth: 9499308.06 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 2, 'eth_src': '00:00:00:00:00:02', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 602
+Bytes: 10526277
+Flow Age: 5.005 seconds
+Interval Bandwidth: 16824658.07 bits/sec
+Average Flow Bandwidth: 16825471.67 bits/sec
+--------------------------------
+===============================
+
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 30.483 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 3171
+Bytes: 66278459
+Flow Age: 25.014 seconds
+Interval Bandwidth: 12835827.75 bits/sec
+Average Flow Bandwidth: 21196996.06 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 3158
+Bytes: 66273280
+Flow Age: 25.014 seconds
+Interval Bandwidth: 8423692.99 bits/sec
+Average Flow Bandwidth: 21195339.72 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:02'})
+Packets: 981
+Bytes: 15795809
+Flow Age: 10.001 seconds
+Interval Bandwidth: 15775867.54 bits/sec
+Average Flow Bandwidth: 12634925.01 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 2, 'eth_src': '00:00:00:00:00:02', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 986
+Bytes: 15794991
+Flow Age: 10.001 seconds
+Interval Bandwidth: 8435951.32 bits/sec
+Average Flow Bandwidth: 12634270.7 bits/sec
+--------------------------------
+===============================
+
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 35.486 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 3685
+Bytes: 75936809
+Flow Age: 30.017 seconds
+Interval Bandwidth: 15444348.87 bits/sec
+Average Flow Bandwidth: 20238211.85 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 3671
+Bytes: 76793204
+Flow Age: 30.017 seconds
+Interval Bandwidth: 16822063.43 bits/sec
+Average Flow Bandwidth: 20466452.99 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:02'})
+Packets: 1481
+Bytes: 20185035
+Flow Age: 15.004 seconds
+Interval Bandwidth: 7018666.5 bits/sec
+Average Flow Bandwidth: 10762280.93 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 2, 'eth_src': '00:00:00:00:00:02', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 1486
+Bytes: 26314057
+Flow Age: 15.004 seconds
+Interval Bandwidth: 16820691.43 bits/sec
+Average Flow Bandwidth: 14030160.15 bits/sec
+--------------------------------
+===============================
+
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 40.488 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 4370
+Bytes: 93131727
+Flow Age: 35.019 seconds
+Interval Bandwidth: 27502989.01 bits/sec
+Average Flow Bandwidth: 21275814.45 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 4352
+Bytes: 97810282
+Flow Age: 35.019 seconds
+Interval Bandwidth: 33616471.17 bits/sec
+Average Flow Bandwidth: 22344623.88 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:02'})
+Packets: 2168
+Bytes: 36847020
+Flow Age: 20.006 seconds
+Interval Bandwidth: 26650571.42 bits/sec
+Average Flow Bandwidth: 14734465.27 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 2, 'eth_src': '00:00:00:00:00:02', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 2176
+Bytes: 45055748
+Flow Age: 20.006 seconds
+Interval Bandwidth: 29977027.02 bits/sec
+Average Flow Bandwidth: 18016989.0 bits/sec
+--------------------------------
+===============================
+
+AUTH_FAIL threshold reached for 10.0.0.2 -> blocking for 20.0 seconds
+Dynamic policy updated: 10.0.0.2 -> 10.0.0.10 BLOCKED (repeated failed logins)
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 45.724 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.2', 'ipv4_dst': '10.0.0.10'})
+Packets: 9
+Bytes: 712
+Flow Age: 0 seconds
+Interval Bandwidth: 0 bits/sec
+Average Flow Bandwidth: 0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 4492
+Bytes: 97829742
+Flow Age: 40.255 seconds
+Interval Bandwidth: 7177635.32 bits/sec
+Average Flow Bandwidth: 19441958.81 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 4489
+Bytes: 97822096
+Flow Age: 40.255 seconds
+Interval Bandwidth: 18049.45 bits/sec
+Average Flow Bandwidth: 19440439.3 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:02'})
+Packets: 2390
+Bytes: 47348321
+Flow Age: 25.242 seconds
+Interval Bandwidth: 16043905.56 bits/sec
+Average Flow Bandwidth: 15006097.87 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 2, 'eth_src': '00:00:00:00:00:02', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 2394
+Bytes: 47346305
+Flow Age: 25.242 seconds
+Interval Bandwidth: 3499516.89 bits/sec
+Average Flow Bandwidth: 15005458.94 bits/sec
+--------------------------------
+===============================
+
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 50.936 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.2', 'ipv4_dst': '10.0.0.10'})
+Packets: 13
+Bytes: 1008
+Flow Age: 5.212 seconds
+Interval Bandwidth: 454.34 bits/sec
+Average Flow Bandwidth: 1547.21 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 4541
+Bytes: 97837869
+Flow Age: 45.467 seconds
+Interval Bandwidth: 12474.38 bits/sec
+Average Flow Bandwidth: 17214725.53 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 4552
+Bytes: 97829026
+Flow Age: 45.467 seconds
+Interval Bandwidth: 10637.07 bits/sec
+Average Flow Bandwidth: 17213169.59 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:02'})
+Packets: 2390
+Bytes: 47348321
+Flow Age: 30.454 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 12437933.91 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 2, 'eth_src': '00:00:00:00:00:02', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 2394
+Bytes: 47346305
+Flow Age: 30.454 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 12437404.32 bits/sec
+--------------------------------
+===============================
+
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 55.931 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.2', 'ipv4_dst': '10.0.0.10'})
+Packets: 20
+Bytes: 1526
+Flow Age: 10.207 seconds
+Interval Bandwidth: 829.63 bits/sec
+Average Flow Bandwidth: 1196.05 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 4590
+Bytes: 97845996
+Flow Age: 50.462 seconds
+Interval Bandwidth: 13016.25 bits/sec
+Average Flow Bandwidth: 15512013.3 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 4615
+Bytes: 97835956
+Flow Age: 50.462 seconds
+Interval Bandwidth: 11099.12 bits/sec
+Average Flow Bandwidth: 15510421.61 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:02'})
+Packets: 2390
+Bytes: 47348321
+Flow Age: 35.449 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 10685356.46 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 2, 'eth_src': '00:00:00:00:00:02', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 2394
+Bytes: 47346305
+Flow Age: 35.449 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 10684901.5 bits/sec
+--------------------------------
+===============================
+
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 60.936 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.2', 'ipv4_dst': '10.0.0.10'})
+Packets: 23
+Bytes: 1748
+Flow Age: 15.212 seconds
+Interval Bandwidth: 354.86 bits/sec
+Average Flow Bandwidth: 919.29 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 4611
+Bytes: 97849479
+Flow Age: 55.467 seconds
+Interval Bandwidth: 5567.42 bits/sec
+Average Flow Bandwidth: 14112850.54 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 4642
+Bytes: 97838926
+Flow Age: 55.467 seconds
+Interval Bandwidth: 4747.41 bits/sec
+Average Flow Bandwidth: 14111328.47 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:02'})
+Packets: 2390
+Bytes: 47348321
+Flow Age: 40.454 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 9363398.39 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 2, 'eth_src': '00:00:00:00:00:02', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 2394
+Bytes: 47346305
+Flow Age: 40.454 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 9362999.72 bits/sec
+--------------------------------
+===============================
+
+Dynamic policy updated: 10.0.0.2 -> 10.0.0.10 UNBLOCKED
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 66.037 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 4622
+Bytes: 97851146
+Flow Age: 60.568 seconds
+Interval Bandwidth: 2614.17 bits/sec
+Average Flow Bandwidth: 12924400.77 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 4657
+Bytes: 97840488
+Flow Age: 60.568 seconds
+Interval Bandwidth: 2449.51 bits/sec
+Average Flow Bandwidth: 12922993.03 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:02'})
+Packets: 2397
+Bytes: 47349482
+Flow Age: 45.555 seconds
+Interval Bandwidth: 1820.67 bits/sec
+Average Flow Bandwidth: 8315060.53 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 2, 'eth_src': '00:00:00:00:00:02', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 2403
+Bytes: 47347295
+Flow Age: 45.555 seconds
+Interval Bandwidth: 1552.51 bits/sec
+Average Flow Bandwidth: 8314676.47 bits/sec
+--------------------------------
+===============================
+
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 71.29 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 4751
+Bytes: 97859725
+Flow Age: 65.82 seconds
+Interval Bandwidth: 13067.37 bits/sec
+Average Flow Bandwidth: 11894136.84 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 4797
+Bytes: 101452049
+Flow Age: 65.82 seconds
+Interval Bandwidth: 5501061.43 bits/sec
+Average Flow Bandwidth: 12330757.66 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:02'})
+Packets: 2397
+Bytes: 47349482
+Flow Age: 50.808 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 7455501.86 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 2, 'eth_src': '00:00:00:00:00:02', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 2403
+Bytes: 47347295
+Flow Age: 50.808 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 7455157.5 bits/sec
+--------------------------------
+===============================
+
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 76.316 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 5009
+Bytes: 97877041
+Flow Age: 70.847 seconds
+Interval Bandwidth: 27557.58 bits/sec
+Average Flow Bandwidth: 11052163.05 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 5056
+Bytes: 114915247
+Flow Age: 70.847 seconds
+Interval Bandwidth: 21426027.42 bits/sec
+Average Flow Bandwidth: 12976097.7 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:02'})
+Packets: 2397
+Bytes: 47349482
+Flow Age: 55.834 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 6784271.7 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 2, 'eth_src': '00:00:00:00:00:02', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 2403
+Bytes: 47347295
+Flow Age: 55.834 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 6783958.35 bits/sec
+--------------------------------
+===============================
+
+
+===== SDN FLOW MONITORING =====
+Flow: OFPMatch(oxm_fields={'eth_type': 2048, 'ipv4_src': '10.0.0.3', 'ipv4_dst': '10.0.0.10'})
+Packets: 0
+Bytes: 0
+Flow Age: 81.317 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 0.0 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:01'})
+Packets: 5586
+Bytes: 104147132
+Flow Age: 75.848 seconds
+Interval Bandwidth: 10030644.22 bits/sec
+Average Flow Bandwidth: 10984813.18 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 1, 'eth_src': '00:00:00:00:00:01', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 5630
+Bytes: 139963884
+Flow Age: 75.848 seconds
+Interval Bandwidth: 40071821.28 bits/sec
+Average Flow Bandwidth: 14762548.79 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 4, 'eth_src': '00:00:00:00:00:04', 'eth_dst': '00:00:00:00:00:02'})
+Packets: 2397
+Bytes: 47349482
+Flow Age: 60.835 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 6226593.66 bits/sec
+--------------------------------
+Flow: OFPMatch(oxm_fields={'in_port': 2, 'eth_src': '00:00:00:00:00:02', 'eth_dst': '00:00:00:00:00:04'})
+Packets: 2403
+Bytes: 47347295
+Flow Age: 60.835 seconds
+Interval Bandwidth: 0.0 bits/sec
+Average Flow Bandwidth: 6226306.07 bits/sec
+--------------------------------
+===============================

@@ -1,255 +1,218 @@
 # SDN-Based Concurrent File Sharing System
 
-## 1. Project Overview
+A multi-user file-sharing application built on TCP sockets, running in a Mininet network whose
+OpenFlow 1.3 switch is controlled by an OS-Ken SDN controller. The application and the controller
+cooperate: the file server reports failed logins to the controller, and the controller reacts by
+installing (and later removing) an OpenFlow drop rule for the offending host. The controller also
+monitors per-flow bandwidth.
 
-This project integrates a file-sharing application with a Software-Defined Networking (SDN) controller.
+*Computer Networks (UE25CS243A) - SDN-Socket Programming mini project, topic 14: Concurrent File Sharing System.*
 
-The system combines client-server file transfers, user authentication, file permissions, and SDN-based network access control. The controller uses OpenFlow rules to control traffic between clients and the file server and monitors network flow statistics.
+**Team:** `PUPPALA KAUSHAL - PES2UG25CS413`, `RAPHAEL BABU CHINTA - PES2UG25CS431`, `RIDDHIMA AGARWAL - PES2UG25CS435` &nbsp;|&nbsp; **Course section:** `G`
 
-## 2. Project Modules
-
-### Module 1: File Transfer Protocol
-- Implements file-transfer protocol functionality.
-- Handles file uploads, listings, and downloads.
-- Supports binary file transfers.
-- Includes protocol and file-name validation tests.
-
-### Module 2: File Sharing and Access Management
-- Provides client-server file-sharing functionality.
-- Supports user registration and authentication.
-- Supports listing, uploading, downloading, and deleting files.
-- Implements file permissions and access checks.
-- Includes storage, authentication, concurrency, and end-to-end tests.
-
-### Module 3: SDN Controller and Network Monitoring
-- Uses OS-Ken to implement the SDN controller.
-- Learns host MAC addresses and forwards Ethernet traffic.
-- Installs a table-miss rule to send unmatched traffic to the controller.
-- Blocks traffic from client 3 to the file server using an OpenFlow drop rule.
-- Requests flow statistics periodically.
-- Reports packet counts, byte counts, flow age, interval bandwidth, and average bandwidth.
-
-## 3. Network Topology
-
-The Mininet topology contains four hosts connected to one OpenFlow switch.
-
-| Component | IP address | Purpose |
+| Module | Owner | Contents |
 |---|---|---|
-| Client 1 | 10.0.0.1 | File-sharing client |
-| Client 2 | 10.0.0.2 | File-sharing client |
-| Client 3 | 10.0.0.3 | Client blocked from the server |
-| Server | 10.0.0.10 | File-sharing server |
-| Switch | s1 | OpenFlow 1.3 switch |
-| Controller | 127.0.0.1:6653 | SDN control plane |
+| 1 - Transfer protocol | `RAPHAEL BABU CHINTA` | standalone JSON/raw-bytes transfer protocol (`integration/module1`) |
+| 2 - File sharing & access management | `PUPPALA KAUSHAL` | server, client, authentication, permissions, storage (`integration/module2`) |
+| 3 - SDN controller & monitoring | `RIDDHIMA AGARWAL` | controller, topology, experiments (`controller_*.py`, `file_network.py`, `experiments/`) |
 
-The controller installs a high-priority rule to drop IPv4 traffic from `10.0.0.3` to `10.0.0.10`. Other traffic is handled by the forwarding logic and the remaining flow rules.
+---
 
-## 4. Requirements
+## 1. Architecture
 
-The project was developed and tested in an Ubuntu virtual machine.
+```
+                         OpenFlow 1.3 (tcp:6653)
+          +------------------------------------------------+
+          |  OS-Ken controller  (controller_dynamic.py)    |
+          |  - MAC learning + table-miss                   |
+          |  - drop rules (priority 100)                   |
+          |  - flow-stats polling every 5 s                |
+          |  - policy engine: AUTH_FAIL -> timed block     |
+          +----------------^---------------^---------------+
+                           |               | control commands (text):
+                           |               | unix:/tmp/sdn-controller.sock, tcp:127.0.0.1:9090
+                     +-----+-----+         |   STATUS | BLOCK ip [s] | UNBLOCK ip | EVENT AUTH_FAIL ip
+  client1 10.0.0.1 --+           |         |
+  client2 10.0.0.2 --+    s1     +-- server 10.0.0.10  (TCP :5000, thread per client)
+  client3 10.0.0.3 --+  (OVS)    |     |  AuthManager + FileManager (SQLite) --- failed login --+
+                     +-----------+     +-------------------------------------------------------+
+```
 
-Required components:
-- Python 3
-- OS-Ken
-- Mininet
-- Open vSwitch with OpenFlow 1.3 support
+**Application protocol (Module 2).** Every message is an 8-byte big-endian length followed by a JSON
+header; file payloads follow as raw bytes after the server's "ready" reply. Commands: `REGISTER`,
+`LOGIN`, `LOGOUT`, `LIST`, `UPLOAD`, `DOWNLOAD`, `DELETE`, `METADATA`, `SET_PERMISSIONS`. Uploads are
+written to a temporary file and moved into place only when complete; downloads carry a SHA-256 that
+the client verifies.
 
-The controller's existing virtual environment is named `controller-env`.
+**Concurrency.** The server starts one thread per connection. Each file has a reader-writer lock
+(many concurrent downloads, one exclusive upload) and file metadata lives in SQLite (WAL mode). A
+connection that goes silent for 300 s (configurable with `--idle-timeout`) is closed, which releases
+its worker thread and any file lock.
 
-## 5. Start the SDN Controller
+**Security.** Salted PBKDF2-SHA256 password hashes, random session tokens, per-file ownership and
+public/private/per-user permissions, filename sanitisation. Only the owner can overwrite or delete a file.
 
-Open a terminal and run:
+**SDN design.**
+
+| Rule | Priority | Purpose |
+|---|---|---|
+| `ip, nw_src=<blocked>, nw_dst=10.0.0.10 -> drop` | 100 | access control (static: 10.0.0.3; dynamic: any IP, optionally timed) |
+| `in_port, eth_src, eth_dst -> output` | 10 | learned forwarding, installed on `packet_in` |
+| match-all -> controller | 0 | table-miss |
+
+**Application -> SDN integration.** `server.py --sdn-control <socket>` sends `EVENT AUTH_FAIL <client-ip>`
+to the controller for every rejected login (status 401). The controller keeps a sliding
+window per IP; after `SDN_AUTH_FAIL_THRESHOLD` failures (default 3) within `SDN_AUTH_FAIL_WINDOW` s
+(default 30) it installs a drop rule for that IP -> server and removes it after
+`SDN_AUTO_BLOCK_SECONDS` (default 60). The server runs in its own Mininet network namespace, so the
+channel is a Unix domain socket in the shared filesystem. Reporting is best-effort: if the controller
+is absent the server keeps working.
+
+**Two controllers, on purpose.** `controller_static.py` is the baseline: a fixed block of 10.0.0.3 and
+no runtime policy. `controller_dynamic.py` adds runtime BLOCK/UNBLOCK, timed blocks and the
+application-driven policy above. The experiments compare them.
+
+## 2. Repository layout
+
+```
+controller_static.py        baseline controller (fixed ACL, learning switch, monitoring)
+controller_dynamic.py       dynamic controller (runtime policy, app-driven blocking, CSV stats)
+file_network.py             Mininet topology (3 clients, 1 server, 1 switch)
+experiments/
+    run_experiments.py      automated evaluation: static vs dynamic, E1-E4
+    client_workload.py      workloads executed inside Mininet hosts
+scripts/
+    run_tests.sh            runs every unit test
+    sdnctl.py               send a command to the running controller
+tests/                      controller policy unit tests
+integration/module1/        standalone transfer-protocol implementation + tests
+integration/module2/        server, client, common, tests (unit, e2e, Mininet scripts)
+results/                    output of experiments/run_experiments.py (see section 6)
+```
+
+## 3. Setup (Ubuntu 20.04/22.04 VM)
+
+Install Mininet and Open vSwitch as in the course manual (`sudo apt install mininet openvswitch-switch`),
+then create the controller environment once:
 
 ```bash
-cd ~/sdn-file-sharing
+python3 -m venv controller-env
+source controller-env/bin/activate
+pip install -r requirements.txt          # installs os-ken (provides osken-manager)
+```
+
+Everything below is run from the repository root. Verify the install with `sudo mn --test pingall`.
+
+## 4. Running the demo
+
+You need three terminals.
+
+**Terminal 1 - controller**
+
+```bash
 source controller-env/bin/activate
 osken-manager controller_dynamic.py
 ```
 
-## 6. Start the Mininet Network
-
-Open another terminal and run:
+**Terminal 2 - network and file server**
 
 ```bash
-cd ~/sdn-file-sharing
-sudo python3 file_network.py
+sudo python3 file_network.py            # opens the mininet> prompt
 ```
-
-The network creates three clients, one server, and one OpenFlow switch.
-
-Once the network starts, the terminal displays the `mininet>` prompt.
-
-## 7. Start the File Server
-
-At the `mininet>` prompt, run:
 
 ```text
-server python3 /home/riddhima/sdn-file-sharing/integration/module2/server/server.py --host 0.0.0.0 --port 5000 --storage /tmp/sdn-server-storage --db /tmp/sdn-server.db &
+mininet> server python3 integration/module2/server/server.py --host 0.0.0.0 --port 5000 --storage /tmp/sdn-server-storage --db /tmp/sdn-server.db --sdn-control /tmp/sdn-controller.sock &
 ```
 
-The server listens on TCP port 5000.
+**Walk-through (what to expect)**
 
-## 8. Network Verification
+| Step | Command | Expected |
+|---|---|---|
+| Connectivity | `mininet> pingall` | `10/12 received`: client3 <-> server is blocked, everything else works |
+| Allowed client | `mininet> client1 python3 experiments/client_workload.py probe --user alice` | `RESULT {"ok": true, ...}` (register, login, upload) |
+| Statically blocked client | `mininet> client3 python3 experiments/client_workload.py probe --user alice --timeout 3` | `"ok": false`, cannot connect |
+| Brute force | `mininet> client2 python3 experiments/client_workload.py bruteforce --user alice --attempts 8 --interval 0.2 --timeout 1` | first 3 attempts `rejected`, the rest `no_response`; controller prints `AUTH_FAIL threshold reached ... blocking` |
+| Inspect the rule | `mininet> sh ovs-ofctl -O OpenFlow13 dump-flows s1` | `priority=100,ip,nw_src=10.0.0.2,nw_dst=10.0.0.10 actions=drop` |
+| Policy status | `python3 scripts/sdnctl.py STATUS` (any terminal) | `Blocked clients: 10.0.0.2 (NNs left), 10.0.0.3` |
+| Manual override | `python3 scripts/sdnctl.py UNBLOCK 10.0.0.2` | client2 works again (otherwise the block lifts by itself after 60 s) |
+| Link failure | `mininet> link s1 server down`, repeat the client1 probe (it fails), then `mininet> link s1 server up` and repeat it again | service unreachable, then recovers after link-up |
+| Bandwidth monitoring | watch Terminal 1 | every 5 s: packets, bytes, flow age, interval and average bandwidth per flow |
 
-The following checks were performed during integration testing:
+Interactive file operations (register, login, upload, download, permissions, ...) use the client CLI,
+for example from an xterm: `mininet> xterm client1`, then
+`python3 integration/module2/client/client.py --server 10.0.0.10`.
 
-- Client 1 can communicate with the server.
-- Client 2 can communicate with the server.
-- Client 3's traffic to the server is blocked by the SDN controller.
-- OpenFlow rules can be inspected using:
+Manual policy commands (also available over TCP with `--tcp`): `BLOCK <ip> [seconds]`, `UNBLOCK <ip>`,
+`STATUS`, `EVENT AUTH_FAIL <ip>`. The control interface is for local testing and is **not** an
+authenticated remote-administration service.
 
-```text
-sh ovs-ofctl -O OpenFlow13 dump-flows s1
-```
+To stop: `exit` at the `mininet>` prompt, `Ctrl-C` in Terminal 1, then `sudo mn -c` to clear leftovers.
 
-- Flow statistics are periodically requested and reported by the controller.
-- File uploads, listings, and downloads were tested between clients and the server.
-
-## 9. Run the Tests
-
-### Module 1 Tests
-
-Open a separate Ubuntu terminal:
+## 5. Tests
 
 ```bash
-cd ~/sdn-file-sharing
-PYTHONPATH="$PWD/integration/module1" python3 -m unittest discover -s integration/module1/tests -v
+./scripts/run_tests.sh
 ```
 
-### Module 2 Tests
+| Suite | Tests | Covers |
+|---|---:|---|
+| Module 1 | 4 | protocol framing, filename validation, binary transfer |
+| Module 2 | 20 | authentication, permissions, locking, storage rollback, end-to-end client/server, SDN event reporting, stalled-upload and client-timeout handling |
+| Controller policy | 7 | BLOCK/UNBLOCK, timed expiry, failed-login threshold and window, input validation (needs os-ken) |
+
+Network-level checks (Mininet): `integration/module2/tests/test_mininet_concurrent.py` (two concurrent
+2 MiB uploads) and `integration/module2/tests/benchmark_mininet.py` (single/concurrent upload throughput
+with SHA-256 verification), both run with `mininet> client1 python3 <script>` while the server is up.
+
+## 6. Experiments and results (static baseline vs dynamic controller)
 
 ```bash
-cd ~/sdn-file-sharing
-python3 -m unittest discover -s integration/module2/tests -v
+sudo python3 experiments/run_experiments.py --osken-cmd controller-env/bin/osken-manager
 ```
 
-### Python Syntax Check
+Takes about 5 minutes. It starts each controller in turn, builds the topology with 100 Mbit/s links,
+starts the server and runs the four experiments below, then writes `results/RESULTS.md` (tables),
+`results/results.json` (raw data), per-controller logs, and `results/flow_stats_*.csv` (the monitoring
+output). Mininet may print harmless `sch_htb: quantum ... is big` warnings.
 
-```bash
-cd ~/sdn-file-sharing
-python3 -m py_compile controller_test.py controller_dynamic.py file_network.py integration/module2/tests/benchmark_mininet.py integration/module2/tests/test_mininet_concurrent.py
-```
+| Exp. | Scenario | Metrics | Purpose / expected behaviour |
+|---|---|---|---|
+| E1 | one client uploads 1/5/10 MiB, then downloads and verifies | throughput (MiB/s, mean +- sd), checksum success | check that the dynamic controller does not slow the data path compared with the static baseline |
+| E2 | client1 and client2 (different hosts) upload at the same time | per-client and aggregate throughput | check that concurrent transfers from different hosts stay correct and share the server link |
+| E3 | client2 brute-forces logins | attempts reaching the server, first dropped attempt, drop rule present/removed, legitimate client success, time until the host works again | static: every attempt reaches the server. dynamic: blocked after 3 failures, legitimate user unaffected, block lifts automatically |
+| E4 | server link down for 4 s during a 40 MiB upload, then up | service during outage, in-flight transfer result, recovery time, server survives | graceful failure and recovery (single switch, no alternate path, so no rerouting) |
 
-## 10. Test Results
+**The numbers for your own VM are in `results/RESULTS.md` - run the command above once and commit the
+`results/` folder.** Results are application-level measurements in an emulated network and compare the
+two controllers under identical conditions; they are not physical-network capacity figures.
 
-The integration tests previously completed with the following results:
+Earlier, unshaped-link measurements recorded by the team (upload throughput, 3 trials each, local VM):
+1 MiB 103.4 MiB/s, 5 MiB 284.7 MiB/s, 10 MiB 319.2 MiB/s; two concurrent uploads from one host:
+71.9 MiB/s (5 MiB) and 45.0 MiB/s (10 MiB) per upload; all 21 uploads verified by checksum.
+Throughput did not increase consistently with file size in those runs.
 
-| Test suite | Result |
+## 7. Limitations
+
+* One switch: there is no alternate path, so link failure is recovered by the link coming back, not by rerouting.
+* The controller control interface is unauthenticated (local use only). Source IPs are not authenticated
+  either, so a spoofing attacker could cause another host to be blocked; a real deployment would add
+  port security or authenticated policy channels.
+* Only the IPv4 client -> server direction is dropped; ARP and client <-> client traffic stay open.
+* Passwords and file contents travel unencrypted (no TLS); this is a lab network.
+* `integration/module1` is a standalone implementation and is not part of the integrated Mininet demo,
+  which uses the Module 2 server and client.
+
+## 8. Rubric coverage
+
+| Area | Where |
 |---|---|
-| Module 1 | 4 tests passed |
-| Module 2 | 16 tests passed |
-| Total | 20 tests passed |
-
-Network-level testing also verified SDN traffic filtering, flow monitoring, and file transfers.
-
-## 11. Project Structure
-
-```text
-sdn-file-sharing/
-├── controller_test.py
-├── controller_dynamic.py
-├── file_network.py
-├── README.md
-└── integration/
-    ├── module1/
-    │   ├── docs/
-    │   ├── module1/
-    │   └── tests/
-    └── module2/
-        ├── client/
-        ├── common/
-        ├── server/
-        └── tests/
-```
-
-## 12. Module 3 Contribution
-
-Module 3 integrates SDN-based traffic control and flow monitoring with the file-sharing system. The controller implements MAC learning and forwarding, installs a rule to block traffic from Client 3 to the server, and periodically collects flow statistics to monitor network activity.
-
-## 13. Dynamic SDN Access Control
-
-The dynamic controller supports runtime access-control changes through a local TCP control interface at 127.0.0.1:9090.
-
-Send STATUS to inspect the current policy. Send BLOCK followed by an IPv4 address to block that client, or UNBLOCK followed by an IPv4 address to restore its access.
-
-Examples:
-- STATUS
-- BLOCK 10.0.0.2
-- UNBLOCK 10.0.0.2
-
-The controller updates its access policy and corresponding OpenFlow rules. The control interface is intended for local testing and is not an authenticated remote administration service.
-
-
-## 14. Robustness and Recovery Tests
-
-### Dynamic access control
-
-The recorded test blocked a client, verified that its traffic to the server failed, then unblocked it and verified that connectivity returned.
-
-Inspect installed rules at the mininet> prompt using:
-sh ovs-ofctl -O OpenFlow13 dump-flows s1
-
-### Link failure and recovery
-
-The link test verified connectivity before a link failure, loss of connectivity while the link was down, and restored connectivity after manually bringing the link back up.
-
-This topology has one switch and no alternate path, so the test demonstrates manual recovery rather than automatic rerouting.
-
-## 15. Concurrent Upload Test
-
-The script integration/module2/tests/test_mininet_concurrent.py tests two concurrent 2 MiB uploads.
-
-Run it at the mininet> prompt while the server is running and the client is permitted by the SDN policy:
-client1 python3 /home/riddhima/sdn-file-sharing/integration/module2/tests/test_mininet_concurrent.py
-
-Both uploads succeeded in the recorded test. The two client sessions originated from the same Mininet host namespace.
-
-
-## 16. Performance Evaluation
-
-The benchmark script is integration/module2/tests/benchmark_mininet.py. It uploads files, downloads them again, and checks their contents using SHA-256 checksums.
-
-Run it at the mininet> prompt with the server running and the client unblocked:
-client1 python3 /home/riddhima/sdn-file-sharing/integration/module2/tests/benchmark_mininet.py
-
-Recorded average upload throughput from one run:
-
-| Configuration | Trials reported | Average throughput |
-|---|---:|---:|
-| Single client, 1 MiB | 3 | 103.40 MiB/s |
-| Single client, 5 MiB | 3 | 284.66 MiB/s |
-| Single client, 10 MiB | 3 | 319.23 MiB/s |
-| Concurrent uploads, 5 MiB | 6 individual uploads | 71.89 MiB/s |
-| Concurrent uploads, 10 MiB | 6 individual uploads | 45.01 MiB/s |
-
-All 21 upload operations succeeded in that run, and downloaded files passed checksum verification.
-
-These are application-level measurements from a local virtualized Mininet environment, not physical-network capacity guarantees. Throughput did not consistently increase with file size. Concurrent sessions originated from one Mininet host namespace.
-
-
-## 17. Final Validation
-
-Run these commands from a normal Ubuntu terminal:
-
-PYTHONPATH="$PWD/integration/module1" python3 -m unittest discover -s integration/module1/tests -v
-python3 -m unittest discover -s integration/module2/tests -v
-python3 -m py_compile controller_test.py controller_dynamic.py file_network.py integration/module2/tests/benchmark_mininet.py integration/module2/tests/test_mininet_concurrent.py
-
-Previously recorded unit-test results were 4 passing Module 1 tests and 16 passing Module 2 tests. Rerun the commands above after code changes to confirm the current state.
-
-## 18. Rubric Coverage Summary
-
-| Area | Implementation or evidence |
-|---|---|
-| Architecture | Client-server application integrated with Mininet SDN |
-| TCP sockets | File transfer, authentication, and concurrent client handling |
-| Mininet and SDN | Four hosts, OpenFlow switch, controller, forwarding, and traffic filtering |
-| Integration | File-sharing operations tested over Mininet |
-| Testing | Unit tests and network-level tests |
-| Complete application | Authentication, file operations, permissions, and storage handling |
-| Dynamic SDN | Runtime STATUS, BLOCK, and UNBLOCK commands |
-| Robustness | Concurrent uploads, checksum validation, and link-failure/recovery test |
-| Performance | Single-client and concurrent-upload benchmark measurements |
-| Documentation | Setup, testing, results, and limitations |
-
-This table maps implemented features and recorded tests to project areas; it does not guarantee a particular grade.
+| Architecture | section 1 |
+| TCP socket implementation | `integration/module2/{server,client,common}` - length-prefixed framing, thread per client, reader-writer locks, timeouts, error handling |
+| Mininet + SDN | `file_network.py`, `controller_*.py` - topology, learning switch, drop rules, monitoring |
+| Socket-SDN integration | `server/sdn_reporter.py` -> controller `EVENT AUTH_FAIL` -> flow rule (`tests/test_controller_policy.py`, `test_sdn_integration.py`, E3) |
+| Initial testing & demo | section 4 walk-through, `test_mininet_concurrent.py` |
+| Complete application | register/login/logout, list, upload, download, delete, metadata, permissions, checksums |
+| Dynamic SDN | runtime `BLOCK`/`UNBLOCK`/`STATUS`, timed blocks, automatic reaction to failed logins |
+| Challenging scenarios | E3 (unauthorized access), E4 (link failure), stalled-upload test, concurrent clients |
+| Performance & comparison | E1-E4, static vs dynamic, `results/RESULTS.md` |
+| Documentation | this README, `integration/module1/docs/module1-protocol.md`, docstrings in every script |

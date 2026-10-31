@@ -1,5 +1,9 @@
 # Module 1 protocol and usage
 
+> Module 1 is a standalone implementation of the transfer protocol. The integrated
+> Mininet/SDN demo runs the Module 2 server and client (length-prefixed JSON
+> framing, see the top-level README).
+
 Module 1 uses newline-delimited UTF-8 JSON control messages over TCP. File
 payloads are raw bytes, sent after a successful `READY` response. One
 request/transfer is processed at a time on each connection; separate
@@ -7,12 +11,12 @@ connections are handled concurrently by server worker threads.
 
 ## Running locally
 
-From `Concurrent-File-Sharing/` in PowerShell:
+From `integration/module1/` of the repository (Linux/macOS shell; use `py` instead of `python3` on Windows):
 
-```powershell
-python -c "from module1.server import start_server, create_unsafe_local_services; start_server('127.0.0.1', 5000, 'storage', create_unsafe_local_services())"
-python -m module1.client --host 127.0.0.1 --port 5000 list
-python -m unittest discover -s tests -v
+```bash
+python3 -c "from module1.server import start_server, create_unsafe_local_services; start_server('127.0.0.1', 5000, 'storage', create_unsafe_local_services())"
+python3 -m module1.client --host 127.0.0.1 --port 5000 list
+python3 -m unittest discover -s tests -v
 ```
 
 `create_unsafe_local_services()` is only for local development/tests. An
@@ -22,8 +26,7 @@ protected operations fail closed.
 ## Actions
 
 Supported actions are `UPLOAD`, `DOWNLOAD`, `LIST_FILES`, `STATS`, `PING`, and
-`QUIT`. Requests and responses use the shared envelopes from
-`json_format_protocol.md`. `DOWNLOAD` accepts `file_id`; standalone mode also
+`QUIT`. Requests and responses are newline-delimited JSON objects. `DOWNLOAD` accepts `file_id`; standalone mode also
 accepts a filename fallback.
 
 Uploads receive `READY`, exactly the declared number of bytes, and then a

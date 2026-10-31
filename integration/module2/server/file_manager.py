@@ -9,7 +9,7 @@ import sqlite3
 import hashlib
 import threading
 from contextlib import contextmanager
-from typing import BinaryIO, Callable, Protocol
+from typing import BinaryIO, Callable
 from common.constants import (
     STATUS_OK,
     STATUS_CREATED,
@@ -20,14 +20,6 @@ from common.constants import (
     BUFFER_SIZE,
 )
 
-class HashWriter(Protocol):
-    """The hashing interface required by the file-stream receiver."""
-
-    def update(self, data: bytes) -> None: ...
-
-    def hexdigest(self) -> str: ...
-    
-    
 
 class ReadWriteLock:
     """
@@ -237,7 +229,7 @@ class FileManager:
         file_size: int,
         owner_username: str,
         owner_id: int,
-        stream_receiver: Callable[[BinaryIO, int, HashWriter], None],
+        stream_receiver: Callable[[BinaryIO, int, "hashlib._Hash"], None],
         is_public: bool = True,
     ) -> tuple[int, str, dict | None]:
         """

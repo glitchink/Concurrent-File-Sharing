@@ -15,3 +15,16 @@ __pycache__/
 # Test and coverage artifacts
 .coverage
 htmlcov/
+
+# Runtime data created by the server and clients
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+integration/module2/server/storage/
+integration/module2/client/downloads/
+client/downloads/
+server/storage/
+
+# Mininet / OS-Ken leftovers
+nohup.out

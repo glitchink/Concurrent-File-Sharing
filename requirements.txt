@@ -1,0 +1,4 @@
+# Python packages (install inside the controller virtual environment)
+os-ken
+# Not installable with pip - install with apt on the Ubuntu VM:
+#   sudo apt install mininet openvswitch-switch
