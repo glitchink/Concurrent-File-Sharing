@@ -8,13 +8,13 @@ monitors per-flow bandwidth.
 
 *Computer Networks (UE25CS243A) - SDN-Socket Programming mini project, topic 14: Concurrent File Sharing System.*
 
-**Team:** `<Name 1 - SRN>`, `<Name 2 - SRN>`, `<Name 3 - SRN>` &nbsp;|&nbsp; **Course section:** `<section>`
+**Team:** `PUPPALA KAUSHAL - PES2UG25CS413`, `RAPHAEL BABU CHINTA - PES2UG25CS431`, `RIDDHIMA AGARWAL - PES2UG25CS435` &nbsp;|&nbsp; **Course section:** `G`
 
 | Module | Owner | Contents |
 |---|---|---|
-| 1 - Transfer protocol | `<name>` | standalone JSON/raw-bytes transfer protocol (`integration/module1`) |
-| 2 - File sharing & access management | `<name>` | server, client, authentication, permissions, storage (`integration/module2`) |
-| 3 - SDN controller & monitoring | `<name>` | controller, topology, experiments (`controller_*.py`, `file_network.py`, `experiments/`) |
+| 1 - Transfer protocol | `RAPHAEL BABU CHINTA` | standalone JSON/raw-bytes transfer protocol (`integration/module1`) |
+| 2 - File sharing & access management | `PUPPALA KAUSHAL` | server, client, authentication, permissions, storage (`integration/module2`) |
+| 3 - SDN controller & monitoring | `RIDDHIMA AGARWAL` | controller, topology, experiments (`controller_*.py`, `file_network.py`, `experiments/`) |
 
 ---
 
