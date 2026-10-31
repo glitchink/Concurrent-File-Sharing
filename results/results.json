@@ -1,0 +1,533 @@
+{
+  "environment": {
+    "timestamp": "2026-10-31 18:46:30",
+    "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+    "python": "3.14.4",
+    "ovs": "ovs-vsctl (Open vSwitch) 3.7.1",
+    "datapath": "kernel",
+    "bw": "100 Mbit/s",
+    "trials": 3
+  },
+  "variants": {
+    "static": {
+      "label": "Static baseline (fixed block of 10.0.0.3, no runtime policy)",
+      "throughput": [
+        {
+          "size_mib": 1,
+          "result": {
+            "user": "bench_single",
+            "size_mib": 1,
+            "trials": [
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452599.9979687,
+                "end": 1793452600.1595032,
+                "seconds": 0.16153454780578613,
+                "mib_per_s": 6.190626176155861
+              },
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452600.2629035,
+                "end": 1793452600.3637521,
+                "seconds": 0.10084867477416992,
+                "mib_per_s": 9.915846710324121
+              },
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452600.4692125,
+                "end": 1793452600.5963418,
+                "seconds": 0.12712931632995605,
+                "mib_per_s": 7.8660062750952235
+              }
+            ]
+          }
+        },
+        {
+          "size_mib": 5,
+          "result": {
+            "user": "bench_single",
+            "size_mib": 5,
+            "trials": [
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452600.7953832,
+                "end": 1793452601.4450579,
+                "seconds": 0.649674654006958,
+                "mib_per_s": 7.69615986888485
+              },
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452602.2203918,
+                "end": 1793452602.7406118,
+                "seconds": 0.5202200412750244,
+                "mib_per_s": 9.611317525840288
+              },
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452603.4743245,
+                "end": 1793452604.3926241,
+                "seconds": 0.918299674987793,
+                "mib_per_s": 5.444845660068937
+              }
+            ]
+          }
+        },
+        {
+          "size_mib": 10,
+          "result": {
+            "user": "bench_single",
+            "size_mib": 10,
+            "trials": [
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452605.0013933,
+                "end": 1793452606.1749432,
+                "seconds": 1.1735498905181885,
+                "mib_per_s": 8.521154559167856
+              },
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452607.8422203,
+                "end": 1793452609.443277,
+                "seconds": 1.6010565757751465,
+                "mib_per_s": 6.245875474549381
+              },
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452610.4808571,
+                "end": 1793452611.501718,
+                "seconds": 1.0208609104156494,
+                "mib_per_s": 9.79565374476768
+              }
+            ]
+          }
+        }
+      ],
+      "concurrent": [
+        {
+          "size_mib": 5,
+          "results": [
+            {
+              "user": "bench_client1",
+              "size_mib": 5,
+              "trials": [
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452617.1399071,
+                  "end": 1793452618.1681867,
+                  "seconds": 1.0282795429229736,
+                  "mib_per_s": 4.862490977684013
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452618.7560115,
+                  "end": 1793452619.2397232,
+                  "seconds": 0.48371171951293945,
+                  "mib_per_s": 10.336735287362101
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452619.967507,
+                  "end": 1793452620.8916552,
+                  "seconds": 0.9241483211517334,
+                  "mib_per_s": 5.410386932011819
+                }
+              ]
+            },
+            {
+              "user": "bench_client2",
+              "size_mib": 5,
+              "trials": [
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452617.1997638,
+                  "end": 1793452618.5699792,
+                  "seconds": 1.3702154159545898,
+                  "mib_per_s": 3.649061265681822
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452619.2149122,
+                  "end": 1793452620.6907997,
+                  "seconds": 1.4758875370025635,
+                  "mib_per_s": 3.3877920062626803
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452622.0262208,
+                  "end": 1793452622.5842147,
+                  "seconds": 0.5579938888549805,
+                  "mib_per_s": 8.96067161283817
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "size_mib": 10,
+          "results": [
+            {
+              "user": "bench_client1",
+              "size_mib": 10,
+              "trials": [
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452627.2292976,
+                  "end": 1793452630.3403294,
+                  "seconds": 3.1110317707061768,
+                  "mib_per_s": 3.2143676879680623
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452632.9012294,
+                  "end": 1793452634.3050122,
+                  "seconds": 1.403782844543457,
+                  "mib_per_s": 7.123608924891965
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452635.7242842,
+                  "end": 1793452637.189561,
+                  "seconds": 1.4652767181396484,
+                  "mib_per_s": 6.824649485113124
+                }
+              ]
+            },
+            {
+              "user": "bench_client2",
+              "size_mib": 10,
+              "trials": [
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452627.226398,
+                  "end": 1793452629.9730358,
+                  "seconds": 2.7466378211975098,
+                  "mib_per_s": 3.640814934835525
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452631.9899836,
+                  "end": 1793452633.727842,
+                  "seconds": 1.737858533859253,
+                  "mib_per_s": 5.754208300138823
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452635.1962554,
+                  "end": 1793452636.666287,
+                  "seconds": 1.470031499862671,
+                  "mib_per_s": 6.802575319599744
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "bruteforce": {
+        "attempts": 15,
+        "attack_seconds": 3.8756051063537598,
+        "reached_server": 15,
+        "dropped_by_network": 0,
+        "first_dropped_attempt": null,
+        "drop_rule_installed": false,
+        "drop_rule_removed_afterwards": true,
+        "legit_probes": 7,
+        "legit_probes_ok": 7,
+        "legit_probe_mean_s": 0.037766524723597934,
+        "attacker_access_restored_after_s": 0.0936434268951416
+      },
+      "link_failure": {
+        "service_before_outage": true,
+        "service_during_outage": false,
+        "outage_seconds": 4.0,
+        "outage_overlapped_transfer": true,
+        "transfer_in_flight_completed": true,
+        "transfer_in_flight_verified": true,
+        "transfer_seconds": 10.641392946243286,
+        "service_restored_after_s": 12.572394371032715,
+        "server_still_running": true
+      }
+    },
+    "dynamic": {
+      "label": "Dynamic controller (runtime policy, app-driven blocking)",
+      "throughput": [
+        {
+          "size_mib": 1,
+          "result": {
+            "user": "bench_single",
+            "size_mib": 1,
+            "trials": [
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452670.148086,
+                "end": 1793452670.306825,
+                "seconds": 0.1587388515472412,
+                "mib_per_s": 6.299655000983781
+              },
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452670.4126358,
+                "end": 1793452670.557627,
+                "seconds": 0.14499115943908691,
+                "mib_per_s": 6.896972228297242
+              },
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452670.6592977,
+                "end": 1793452670.7550807,
+                "seconds": 0.09578299522399902,
+                "mib_per_s": 10.440266538558232
+              }
+            ]
+          }
+        },
+        {
+          "size_mib": 5,
+          "result": {
+            "user": "bench_single",
+            "size_mib": 5,
+            "trials": [
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452670.976987,
+                "end": 1793452671.4857693,
+                "seconds": 0.5087823867797852,
+                "mib_per_s": 9.827384221467037
+              },
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452672.4544094,
+                "end": 1793452672.99184,
+                "seconds": 0.5374305248260498,
+                "mib_per_s": 9.303528119505959
+              },
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452673.504562,
+                "end": 1793452674.0144541,
+                "seconds": 0.5098922252655029,
+                "mib_per_s": 9.805993800741872
+              }
+            ]
+          }
+        },
+        {
+          "size_mib": 10,
+          "result": {
+            "user": "bench_single",
+            "size_mib": 10,
+            "trials": [
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452674.844363,
+                "end": 1793452676.197002,
+                "seconds": 1.3526389598846436,
+                "mib_per_s": 7.392955767629838
+              },
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452677.188631,
+                "end": 1793452678.1455004,
+                "seconds": 0.95686936378479,
+                "mib_per_s": 10.450747383578168
+              },
+              {
+                "ok": true,
+                "verified": true,
+                "start": 1793452679.5601325,
+                "end": 1793452680.4976916,
+                "seconds": 0.9375591278076172,
+                "mib_per_s": 10.665993966038112
+              }
+            ]
+          }
+        }
+      ],
+      "concurrent": [
+        {
+          "size_mib": 5,
+          "results": [
+            {
+              "user": "bench_client1",
+              "size_mib": 5,
+              "trials": [
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452685.4833653,
+                  "end": 1793452687.448697,
+                  "seconds": 1.965331792831421,
+                  "mib_per_s": 2.544099687512093
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452688.4366639,
+                  "end": 1793452689.4990778,
+                  "seconds": 1.0624139308929443,
+                  "mib_per_s": 4.706263589557385
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452690.5158403,
+                  "end": 1793452691.4690754,
+                  "seconds": 0.9532351493835449,
+                  "mib_per_s": 5.245295458558666
+                }
+              ]
+            },
+            {
+              "user": "bench_client2",
+              "size_mib": 5,
+              "trials": [
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452686.3645017,
+                  "end": 1793452687.4722047,
+                  "seconds": 1.1077029705047607,
+                  "mib_per_s": 4.513845437935034
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452688.5780492,
+                  "end": 1793452689.6557317,
+                  "seconds": 1.0776824951171875,
+                  "mib_per_s": 4.639585427669305
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452690.6843913,
+                  "end": 1793452691.807477,
+                  "seconds": 1.1230857372283936,
+                  "mib_per_s": 4.452019854102366
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "size_mib": 10,
+          "results": [
+            {
+              "user": "bench_client1",
+              "size_mib": 10,
+              "trials": [
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452696.5462372,
+                  "end": 1793452698.5876544,
+                  "seconds": 2.041417121887207,
+                  "mib_per_s": 4.898557914883856
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452700.1590357,
+                  "end": 1793452701.6299994,
+                  "seconds": 1.470963716506958,
+                  "mib_per_s": 6.798264218064211
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452703.1252904,
+                  "end": 1793452704.366166,
+                  "seconds": 1.2408757209777832,
+                  "mib_per_s": 8.058824772653475
+                }
+              ]
+            },
+            {
+              "user": "bench_client2",
+              "size_mib": 10,
+              "trials": [
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452696.5667467,
+                  "end": 1793452698.6365573,
+                  "seconds": 2.069810628890991,
+                  "mib_per_s": 4.831359864722514
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452700.7024417,
+                  "end": 1793452702.57181,
+                  "seconds": 1.869368314743042,
+                  "mib_per_s": 5.349400608287603
+                },
+                {
+                  "ok": true,
+                  "verified": true,
+                  "start": 1793452703.9968824,
+                  "end": 1793452705.2571878,
+                  "seconds": 1.260305404663086,
+                  "mib_per_s": 7.934584714943179
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "bruteforce": {
+        "attempts": 15,
+        "attack_seconds": 15.190113067626953,
+        "reached_server": 3,
+        "dropped_by_network": 12,
+        "first_dropped_attempt": 4,
+        "drop_rule_installed": true,
+        "drop_rule_removed_afterwards": true,
+        "legit_probes": 23,
+        "legit_probes_ok": 23,
+        "legit_probe_mean_s": 0.03486334759256114,
+        "attacker_access_restored_after_s": 6.331871271133423
+      },
+      "link_failure": {
+        "service_before_outage": true,
+        "service_during_outage": false,
+        "outage_seconds": 4.0,
+        "outage_overlapped_transfer": true,
+        "transfer_in_flight_completed": true,
+        "transfer_in_flight_verified": true,
+        "transfer_seconds": 13.832102537155151,
+        "service_restored_after_s": 15.056447982788086,
+        "server_still_running": true
+      }
+    }
+  }
+}

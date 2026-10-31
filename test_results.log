@@ -1,0 +1,151 @@
+== Module 1 (protocol, standalone) ==
+....
+----------------------------------------------------------------------
+Ran 4 tests in 1.048s
+
+OK
+== Module 2 (auth, files, concurrency, SDN reporting, robustness) ==
+....................
+----------------------------------------------------------------------
+Ran 20 tests in 5.759s
+
+OK
+==================================================
+[*] Concurrent File Sharing Server Started
+[*] Listening on 127.0.0.1:5599
+[*] Storage Directory: /tmp/tmprxduq3bx/server_storage
+[*] Database Path:     /tmp/tmprxduq3bx/server_data.db
+==================================================
+[+] Connection accepted from 127.0.0.1:60440
+[201] User 'alice' registered successfully.
+[*] [127.0.0.1] REGISTER user 'alice': 201 - User 'alice' registered successfully.
+[+] Login successful! Welcome, alice.
+[*] [127.0.0.1] LOGIN user 'alice': 200 - Login successful.
+[+] Connection accepted from 127.0.0.1:60452
+[201] User 'bob' registered successfully.
+[*] [127.0.0.1] REGISTER user 'bob': 201 - User 'bob' registered successfully.
+[+] Login successful! Welcome, bob.
+[*] Uploading 'network_report.txt' (4900 bytes)...
+[*] [127.0.0.1] LOGIN user 'bob': 200 - Login successful.
+[+] Upload succeeded: File 'network_report.txt' saved successfully.
+[*] Downloading 'network_report.txt' (4900 bytes) -> '/tmp/tmprxduq3bx/client2_downloads/network_report.txt'...
+[+] Download complete: saved to '/tmp/tmprxduq3bx/client2_downloads/network_report.txt' (Checksum verified: c9e20b63...)
+[*] [127.0.0.1] DOWNLOAD 'network_report.txt' by 'bob': 200 - File 'network_report.txt' transferred successfully.
+[*] Uploading 'network_report.txt' (34 bytes)...
+[-] Upload failed: Permission denied: File 'network_report.txt' is owned by another user.
+[*] [127.0.0.1] UPLOAD 'network_report.txt' (34 bytes) by 'bob': 403 - Permission denied: File 'network_report.txt' is owned by another user.
+[*] [127.0.0.1] UPLOAD 'network_report.txt' (4900 bytes) by 'alice': 201 - File 'network_report.txt' saved successfully.
+[*] Downloading 'network_report.txt' (4900 bytes) -> '/tmp/tmprxduq3bx/client_downloads/verify_alice.txt'...
+[*] [127.0.0.1] DOWNLOAD 'network_report.txt' by 'alice': 200 - File 'network_report.txt' transferred successfully.
+[+] Download complete: saved to '/tmp/tmprxduq3bx/client_downloads/verify_alice.txt' (Checksum verified: c9e20b63...)
+[*] Uploading 'network_report.txt' (4926 bytes)...
+[+] Upload succeeded: File 'network_report.txt' saved successfully.
+[*] [127.0.0.1] DOWNLOAD 'network_report.txt' by 'bob': 200 - File 'network_report.txt' transferred successfully.
+[*] [127.0.0.1] UPLOAD 'network_report.txt' (4926 bytes) by 'alice': 201 - File 'network_report.txt' saved successfully.
+[*] Downloading 'network_report.txt' (4926 bytes) -> '/tmp/tmprxduq3bx/client2_downloads/network_report_v2.txt'...
+[+] Download complete: saved to '/tmp/tmprxduq3bx/client2_downloads/network_report_v2.txt' (Checksum verified: b55375e9...)
+[*] Uploading 'keys.pem' (23 bytes)...
+[*] [127.0.0.1] UPLOAD 'keys.pem' (23 bytes) by 'alice': 201 - File 'keys.pem' saved successfully.
+[+] Upload succeeded: File 'keys.pem' saved successfully.
+[-] Download rejected: Permission denied for file 'keys.pem'.
+[200] Permissions updated for 'keys.pem'.
+[*] Downloading 'keys.pem' (23 bytes) -> '/tmp/tmprxduq3bx/client2_downloads/keys.pem'...
+[*] [127.0.0.1] DOWNLOAD 'keys.pem' by 'bob': 200 - File 'keys.pem' transferred successfully.
+[+] Download complete: saved to '/tmp/tmprxduq3bx/client2_downloads/keys.pem' (Checksum verified: 7b9f95dc...)
+[*] Logged out successfully.
+[*] Logged out successfully.
+[*] Server stopped.
+[*] [127.0.0.1] LOGOUT user 'bob': 200 - Logged out successfully.
+[-] Connection closed for 127.0.0.1:60452
+[*] [127.0.0.1] LOGOUT user 'alice': 200 - Logged out successfully.
+[-] Connection closed for 127.0.0.1:60440
+==================================================
+[*] Concurrent File Sharing Server Started
+[*] Listening on 127.0.0.1:42843
+[*] Storage Directory: /tmp/tmp4la48g11/st
+[*] Database Path:     /tmp/tmp4la48g11/db.sqlite
+==================================================
+[*] Server stopped.
+==================================================
+[*] Concurrent File Sharing Server Started
+[*] Listening on 127.0.0.1:40843
+[*] Storage Directory: /tmp/tmpeip53ngh/st
+[*] Database Path:     /tmp/tmpeip53ngh/db.sqlite
+==================================================
+[+] Connection accepted from 127.0.0.1:55346
+[*] [127.0.0.1] REGISTER user 'stalled': 201 - User 'stalled' registered successfully.
+[201] User 'stalled' registered successfully.
+[*] [127.0.0.1] LOGIN user 'stalled': 200 - Login successful.
+[+] Login successful! Welcome, stalled.
+[*] [127.0.0.1] UPLOAD 'big.bin' (100000 bytes) by 'stalled': 500 - Failed to save file: timed out
+[-] Client 127.0.0.1:55346 idle for 1.0s; closing connection
+[-] Connection closed for 127.0.0.1:55346
+[+] Connection accepted from 127.0.0.1:52520
+[201] User 'other' registered successfully.
+[*] [127.0.0.1] REGISTER user 'other': 201 - User 'other' registered successfully.
+[+] Login successful! Welcome, other.
+[*] [127.0.0.1] LOGIN user 'other': 200 - Login successful.
+[*] Uploading 'big.bin' (200 bytes)...
+[+] Upload succeeded: File 'big.bin' saved successfully.
+[*] Server stopped.
+[*] [127.0.0.1] UPLOAD 'big.bin' (200 bytes) by 'other': 201 - File 'big.bin' saved successfully.
+[-] Connection closed for 127.0.0.1:52520
+==================================================
+[*] Concurrent File Sharing Server Started
+[*] Listening on 127.0.0.1:55429
+[*] Storage Directory: /tmp/tmpuatzi_5q/st
+[*] Database Path:     /tmp/tmpuatzi_5q/db.sqlite
+==================================================
+[+] Connection accepted from 127.0.0.1:39624
+[*] [127.0.0.1] REGISTER user 'carol': 201 - User 'carol' registered successfully.
+[201] User 'carol' registered successfully.
+[+] Login successful! Welcome, carol.
+[*] [127.0.0.1] LOGIN user 'carol': 200 - Login successful.
+[*] Logged out successfully.
+[*] [127.0.0.1] LOGOUT user 'carol': 200 - Logged out successfully.
+[-] Connection closed for 127.0.0.1:39624
+[+] Connection accepted from 127.0.0.1:39632
+[*] [127.0.0.1] LOGIN user 'carol': 401 - Invalid username or password.
+[-] Login failed: Invalid username or password.
+[*] [127.0.0.1] LOGIN user 'nobody': 401 - Invalid username or password.
+[-] Login failed: Invalid username or password.
+[*] Server stopped.
+[-] Connection closed for 127.0.0.1:39632
+==================================================
+[*] Concurrent File Sharing Server Started
+[*] Listening on 127.0.0.1:44361
+[*] Storage Directory: /tmp/tmp34kn4jd5/st
+[*] Database Path:     /tmp/tmp34kn4jd5/db.sqlite
+==================================================
+[+] Connection accepted from 127.0.0.1:33454
+[*] [127.0.0.1] LOGIN user 'ghost': 401 - Invalid username or password.
+[-] Login failed: Invalid username or password.
+[*] [127.0.0.1] REGISTER user 'dave': 201 - User 'dave' registered successfully.
+[201] User 'dave' registered successfully.
+[*] [127.0.0.1] LOGIN user 'dave': 200 - Login successful.
+[+] Login successful! Welcome, dave.
+[*] Server stopped.
+[-] Connection closed for 127.0.0.1:33454
+== Module 3 (controller policy; needs os-ken, skipped otherwise) ==
+/home/riddhima/CN_Submission/Concurrent-File-Sharing-main/controller-env/lib/python3.14/site-packages/os_ken/lib/hub.py:160: EventletDeprecationWarning:
+Eventlet is deprecated. It is currently being maintained in bugfix mode, and
+we strongly recommend against using it for new projects.
+
+If you are already using Eventlet, we recommend migrating to a different
+framework.  For more detail see
+https://eventlet.readthedocs.io/en/latest/asyncio/migration.html
+
+  import eventlet
+AUTH_FAIL threshold reached for 10.0.0.2 -> blocking for 60.0 seconds
+Dynamic policy updated: 10.0.0.2 -> 10.0.0.10 BLOCKED (repeated failed logins)
+.Dynamic policy updated: 10.0.0.2 -> 10.0.0.10 BLOCKED (manual)
+Dynamic policy updated: 10.0.0.2 -> 10.0.0.10 UNBLOCKED
+.....Dynamic policy updated: 10.0.0.2 -> 10.0.0.10 BLOCKED (manual)
+Dynamic policy updated: 10.0.0.2 -> 10.0.0.10 UNBLOCKED
+.
+----------------------------------------------------------------------
+Ran 7 tests in 0.878s
+
+OK
+== Syntax check ==
+ALL TESTS PASSED

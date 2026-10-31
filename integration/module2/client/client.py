@@ -37,8 +37,9 @@ class FileSharingClient:
     Client interface communicating with ConcurrentFileServer over TCP sockets.
     """
 
-    def __init__(self, server_ip: str = SERVER_IP, port: int = DEFAULT_PORT, downloads_dir: str = "client/downloads"):
+    def __init__(self, server_ip: str = SERVER_IP, port: int = DEFAULT_PORT, downloads_dir: str = "client/downloads", timeout: float | None = None):
         self.server_ip = server_ip
+        self.timeout = timeout  # seconds for connect/send/recv; None = block forever
         self.port = port
         self.downloads_dir = os.path.abspath(downloads_dir)
         self.sock: socket.socket | None = None
@@ -52,6 +53,7 @@ class FileSharingClient:
         """Establishes TCP connection to the server."""
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.settimeout(self.timeout)
             self.sock.connect((self.server_ip, self.port))
             return True
         except Exception as e:
@@ -370,7 +372,14 @@ def interactive_cli(client: FileSharingClient) -> None:
                 print(f"Unknown command: '{cmd}'. Type 'exit' to quit.")
         except (KeyboardInterrupt, EOFError):
             print("\nExiting...")
-            client.logout()
+            try:
+                client.logout()
+            except OSError:
+                pass
+            break
+        except OSError as exc:
+            # Connection lost, timed out, or blocked by the network policy.
+            print(f"\n[-] Connection problem: {exc}. Restart the client to reconnect.")
             break
 
 
@@ -379,9 +388,12 @@ def main():
     parser.add_argument("--server", default=SERVER_IP, help=f"Server IP (default: {SERVER_IP})")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"Server Port (default: {DEFAULT_PORT})")
     parser.add_argument("--downloads", default="client/downloads", help="Downloads directory path")
+    parser.add_argument("--timeout", type=float, default=None, help="Network timeout in seconds (default: none)")
     args = parser.parse_args()
 
-    client = FileSharingClient(server_ip=args.server, port=args.port, downloads_dir=args.downloads)
+    client = FileSharingClient(
+        server_ip=args.server, port=args.port, downloads_dir=args.downloads, timeout=args.timeout
+    )
     if client.connect():
         try:
             interactive_cli(client)

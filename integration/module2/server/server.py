@@ -35,6 +35,7 @@ from common.constants import (
 from common import protocol
 from server.auth_manager import AuthManager
 from server.file_manager import FileManager
+from server.sdn_reporter import SdnReporter
 
 
 class ConcurrentFileServer:
@@ -49,11 +50,17 @@ class ConcurrentFileServer:
         port: int = DEFAULT_PORT,
         storage_dir: str = "server/storage",
         db_path: str = "server/server_data.db",
+        sdn_control_socket: str | None = None,
+        idle_timeout: float | None = 300.0,
     ):
         self.host = host
         self.port = port
         self.auth_manager = AuthManager(db_path=db_path)
         self.file_manager = FileManager(storage_dir=storage_dir, db_path=db_path)
+        self.sdn_reporter = SdnReporter(sdn_control_socket)
+        # A client that goes silent (crashed host, failed link) must not hold a
+        # worker thread and a file lock forever.
+        self.idle_timeout = idle_timeout if idle_timeout and idle_timeout > 0 else None
         self.server_socket: socket.socket | None = None
         self.is_running = False
 
@@ -108,6 +115,7 @@ class ConcurrentFileServer:
         """
         print(f"[+] Connection accepted from {addr[0]}:{addr[1]}")
         try:
+            sock.settimeout(self.idle_timeout)
             while self.is_running:
                 req = protocol.receive_message(sock)
                 if req is None:
@@ -125,6 +133,8 @@ class ConcurrentFileServer:
                 self._dispatch_command(sock, req, addr)
         except (ConnectionResetError, BrokenPipeError):
             pass
+        except socket.timeout:
+            print(f"[-] Client {addr[0]}:{addr[1]} idle for {self.idle_timeout}s; closing connection")
         except Exception as e:
             print(f"[-] Error handling client {addr}: {e}")
         finally:
@@ -163,6 +173,10 @@ class ConcurrentFileServer:
             }
             protocol.send_message(sock, resp)
             print(f"[*] [{addr[0]}] LOGIN user '{username}': {status} - {msg}")
+            if status == STATUS_UNAUTHORIZED:
+                # Application -> SDN: let the controller decide whether this
+                # source should be blocked after repeated failures.
+                self.sdn_reporter.report_auth_failure(addr[0])
             return
 
         # -------------------------------------------------------------
@@ -349,6 +363,18 @@ def main():
     parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"Port to listen on (default: {DEFAULT_PORT})")
     parser.add_argument("--storage", default="server/storage", help="Storage directory path")
     parser.add_argument("--db", default="server/server_data.db", help="SQLite database path")
+    parser.add_argument(
+        "--sdn-control",
+        default=os.environ.get("SDN_CONTROL_SOCK"),
+        help="Unix socket of the SDN controller; failed logins are reported there "
+        "(default: $SDN_CONTROL_SOCK, disabled if unset)",
+    )
+    parser.add_argument(
+        "--idle-timeout",
+        type=float,
+        default=300.0,
+        help="Close a connection after this many seconds without data (0 = never; default: 300)",
+    )
     args = parser.parse_args()
 
     server = ConcurrentFileServer(
@@ -356,6 +382,8 @@ def main():
         port=args.port,
         storage_dir=args.storage,
         db_path=args.db,
+        sdn_control_socket=args.sdn_control,
+        idle_timeout=args.idle_timeout,
     )
     try:
         server.start()
